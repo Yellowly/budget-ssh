@@ -1,8 +1,8 @@
-./.git
-./.cache
-./.vscode
-./client
-./server
-./budget_ssh_test
-./submission.zip
-./obj
+.git/
+.cache/
+.vscode/
+client
+server
+budget_ssh_test
+submission.zip
+obj/
