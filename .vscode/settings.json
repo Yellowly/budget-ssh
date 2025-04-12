@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "pseudo_terminal.h": "c",
+        "vector": "c"
+    }
+}
