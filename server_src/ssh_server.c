@@ -79,6 +79,9 @@ int run_server(struct sockaddr_in addr) {
   printf("Server listening on %s:%d\n", inet_ntoa(addr.sin_addr),
          ntohs(addr.sin_port));
 
+  // setup sessions which clients can connect to
+  init_sessions(8);
+
   // check for connections
   while (server_socket != -1) {
     // listens and creates socket for newly connected clients

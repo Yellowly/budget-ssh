@@ -33,6 +33,7 @@ void *reap_task(void *arg) {
 int init_sessions(int _max_sessions) {
   sessions = (Session *)malloc(sizeof(Session) * _max_sessions);
   max_sessions = _max_sessions;
+  return max_sessions;
 }
 
 Session *make_session() {
