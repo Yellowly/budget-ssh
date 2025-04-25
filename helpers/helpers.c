@@ -45,7 +45,7 @@ int parse_addr(struct sockaddr_in *addr, const char *addr_str) {
 
   addr->sin_family = AF_INET;
   addr->sin_port = htons(port);
-  if (inet_pton(AF_INET, "127.0.0.1", &addr->sin_addr) <= 0)
+  if (inet_pton(AF_INET, ip, &addr->sin_addr) <= 0)
     return -2;
 
   return 0;
