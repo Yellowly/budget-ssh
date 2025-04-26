@@ -43,6 +43,7 @@ int handle_connection(int socket_fd) {
     }
   }
   pthread_mutex_unlock(&session->session_lock);
+  pthread_cancel(writer);
   pthread_join(writer, NULL);
 
   close_session(session);

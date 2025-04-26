@@ -17,7 +17,7 @@ void *reap_task(void *arg) {
     for (int i = 0; i < max_sessions; i++) {
       if (sessions[i].pid > 0) {
         if (sessions[i].num_conns == 0) {
-          kill(sessions[i].pid, -9);
+          kill(sessions[i].pid, 9);
         }
         int status;
         if (waitpid(sessions[i].pid, &status, WNOHANG) > 0) {
@@ -33,6 +33,11 @@ void *reap_task(void *arg) {
 int init_sessions(int _max_sessions) {
   sessions = (Session *)malloc(sizeof(Session) * _max_sessions);
   max_sessions = _max_sessions;
+  for (int i = 0; i < max_sessions; i++) {
+    sessions[i].sid = i;
+    sessions[i].pid = -1;
+    sessions[i].num_conns = 0;
+  }
   return max_sessions;
 }
 

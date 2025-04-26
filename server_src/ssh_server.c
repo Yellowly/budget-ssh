@@ -49,6 +49,7 @@ void *conn_handler(void *args) {
   int socket_fd = *(int *)args;
   handle_connection(socket_fd);
   close(socket_fd);
+  printf("Client on socket %d was disconnected\n", socket_fd);
   return NULL;
 }
 
@@ -96,8 +97,8 @@ int run_server(struct sockaddr_in addr) {
       perror("An error occured while accepting a connection");
     }
 
-    printf("Connection made with %s:%d\n", inet_ntoa(client_addr.sin_addr),
-           client_addr.sin_port);
+    printf("Connection made with %s:%d on socket %d\n",
+           inet_ntoa(client_addr.sin_addr), client_addr.sin_port, client_sock);
 
     // start a thread for handling the client connection
     pthread_t client_thread;
