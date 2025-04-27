@@ -10,7 +10,10 @@ typedef struct Process {
   int argc;
   int capacity;
   char **args;
-  Process *next;
+  struct Process *next;
+  int redirect_output;  // Flag for output redirection
+  char *output_file;    // Output file name if redirecting
+  int background; // Flag for background execution
 } Process;
 
 /*!
@@ -28,6 +31,16 @@ typedef struct ProcessChain {
   Process *head;
   Process *tail;
 } ProcessChain;
+
+/*!
+ * Parses the given input command and populates a ProcessChain
+ */
+void parse_input(char *input, ProcessChain *process_list);
+
+/*!
+ * Execute a list of commands using processes and pipes
+ */
+char run_commands(ProcessChain *process_list);
 
 /*
  * Entry point for running the tsh shell
