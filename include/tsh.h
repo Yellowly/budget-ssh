@@ -10,7 +10,7 @@ typedef struct Process {
   int argc;
   int capacity;
   char **args;
-  Process *next;
+  struct Process *next;
   int redirect_output;  // Flag for output redirection
   char *output_file;    // Output file name if redirecting
   int background; // Flag for background execution

@@ -125,30 +125,20 @@ void parse_input(char *input, ProcessChain *process_list) {
     }
 
     // Parse commands separated by pipes
-    token = strtok(commands, "|");
-    Process *last_process = NULL;
+    char *cmd_str = strdup(commands);
+    char *pipe_token = strtok(cmd_str, "|");
+    is_piped = 0;  // Reset pipe flag for new command
     
-    while (token != NULL) {
+    while (pipe_token != NULL) {
       // Create new process
       current_proc = add_process(process_list, is_piped);
-      if (last_process == NULL && process_list->head == NULL) {
-        process_list->head = current_proc;
-      }
-      if (process_list->tail == NULL) {
-        process_list->tail = current_proc;
-      }
-      last_process = current_proc;
       
-      current_proc->stdio_fds[0] = STDIN_FILENO;  // Default input
-      current_proc->stdio_fds[1] = STDOUT_FILENO; // Default output
-      
-      // Set background flag for the last process in the chain
-      if (background && token == strtok(NULL, "|") == NULL) {
-        current_proc->background = 1;
-      }
+      // Default stdio
+      current_proc->stdio_fds[0] = STDIN_FILENO;
+      current_proc->stdio_fds[1] = STDOUT_FILENO;
       
       // Make a copy to work with
-      char *cmd_copy = strdup(token);
+      char *cmd_copy = strdup(pipe_token);
       
       // Check for output redirection
       char *output_redir = strstr(cmd_copy, ">");
@@ -226,10 +216,19 @@ void parse_input(char *input, ProcessChain *process_list) {
         }
       }
       
+      // Before advancing to next token, check if this is the last process and set background flag
+      char *next_pipe = strtok(NULL, "|");
+      if (background && next_pipe == NULL) {
+        // This is the last process in the pipeline and background was requested
+        current_proc->background = 1;
+      }
+      
       free(cmd_copy);
       is_piped = 1;  // Set piped flag for subsequent processes
-      token = strtok(NULL, "|");
+      pipe_token = next_pipe;  // Advance to next token
     }
+    
+    free(cmd_str);
     
     // Reset pipe flag for the next command after semicolon
     is_piped = 0;
