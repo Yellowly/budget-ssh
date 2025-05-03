@@ -73,7 +73,7 @@ void run_session(int socket_fd);
 /*!
  * Closes the given session
  */
-int close_session(struct Session *session);
+int close_session(Session *session);
 
 /*!
  * Entry point for handling client connections.

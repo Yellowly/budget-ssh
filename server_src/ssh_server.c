@@ -1,6 +1,6 @@
 #include <arpa/inet.h>
 #include <asm-generic/socket.h>
-#include <connection.h>
+#include <session.h>
 #include <signal.h>
 
 int server_socket;

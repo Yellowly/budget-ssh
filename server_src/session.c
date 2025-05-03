@@ -180,14 +180,13 @@ int close_session(Connection *conn, int sid) {
  * Handle a connection made to the server
  */
 int handle_connection(int socket_fd) {
-  Session *session = make_session();
-  if (session == NULL)
-    return -1;
-
   Connection conn;
   conn.socket_fd = socket_fd;
-  // conn.session = session;
   pthread_mutex_init(&conn.socket_lock, NULL);
+
+  Session *session = make_session(&conn, 4);
+  if (session == NULL)
+    return -1;
 
   char msg_buffer[1024];
   int res = 0;
@@ -247,7 +246,7 @@ int handle_connection(int socket_fd) {
   }
   pthread_mutex_unlock(&session->session_lock);
 
-  close_session(session);
+  close_session(&conn, session->sid);
 
   return res;
 }
