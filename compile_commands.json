@@ -168,5 +168,175 @@
    "-pthread"
   ],
   "file": "test/test.cpp"
+ },
+ {
+  "directory": "/home/irawizza/cs377/testing2/budget-ssh",
+  "arguments": [
+   "g++",
+   "-c",
+   "-o",
+   "obj/pseudo_terminal.o",
+   "server_src/pseudo_terminal.c",
+   "-Iinclude",
+   "-Wall",
+   "-DDEBUGMODE",
+   "-Wextra",
+   "-g",
+   "-pthread"
+  ],
+  "file": "server_src/pseudo_terminal.c"
+ },
+ {
+  "directory": "/home/irawizza/cs377/testing2/budget-ssh",
+  "arguments": [
+   "g++",
+   "-c",
+   "-o",
+   "obj/helpers.o",
+   "helpers/helpers.c",
+   "-Iinclude",
+   "-Wall",
+   "-DDEBUGMODE",
+   "-Wextra",
+   "-g",
+   "-pthread"
+  ],
+  "file": "helpers/helpers.c"
+ },
+ {
+  "directory": "/home/irawizza/cs377/testing2/budget-ssh",
+  "arguments": [
+   "g++",
+   "-c",
+   "-o",
+   "obj/tsh.o",
+   "server_src/tsh.c",
+   "-Iinclude",
+   "-Wall",
+   "-DDEBUGMODE",
+   "-Wextra",
+   "-g",
+   "-pthread"
+  ],
+  "file": "server_src/tsh.c"
+ },
+ {
+  "directory": "/home/irawizza/cs377/testing2/budget-ssh",
+  "arguments": [
+   "g++",
+   "-c",
+   "-o",
+   "obj/session.o",
+   "server_src/session.c",
+   "-Iinclude",
+   "-Wall",
+   "-DDEBUGMODE",
+   "-Wextra",
+   "-g",
+   "-pthread"
+  ],
+  "file": "server_src/session.c"
+ },
+ {
+  "directory": "/home/irawizza/cs377/testing2/budget-ssh",
+  "arguments": [
+   "g++",
+   "-c",
+   "-o",
+   "obj/connection.o",
+   "server_src/connection.c",
+   "-Iinclude",
+   "-Wall",
+   "-DDEBUGMODE",
+   "-Wextra",
+   "-g",
+   "-pthread"
+  ],
+  "file": "server_src/connection.c"
+ },
+ {
+  "directory": "/home/irawizza/cs377/testing2/budget-ssh",
+  "arguments": [
+   "g++",
+   "-c",
+   "-o",
+   "obj/ssh_server.o",
+   "server_src/ssh_server.c",
+   "-Iinclude",
+   "-Wall",
+   "-DDEBUGMODE",
+   "-Wextra",
+   "-g",
+   "-pthread"
+  ],
+  "file": "server_src/ssh_server.c"
+ },
+ {
+  "directory": "/home/irawizza/cs377/testing2/budget-ssh",
+  "arguments": [
+   "g++",
+   "-c",
+   "-o",
+   "obj/ssh_client.o",
+   "client_src/ssh_client.c",
+   "-Iinclude",
+   "-Wall",
+   "-DDEBUGMODE",
+   "-Wextra",
+   "-g",
+   "-pthread"
+  ],
+  "file": "client_src/ssh_client.c"
+ },
+ {
+  "directory": "/home/irawizza/cs377/testing2/budget-ssh",
+  "arguments": [
+   "g++",
+   "-c",
+   "-o",
+   "obj/server_main.o",
+   "server_src/server_main.c",
+   "-Iinclude",
+   "-Wall",
+   "-DDEBUGMODE",
+   "-Wextra",
+   "-g",
+   "-pthread"
+  ],
+  "file": "server_src/server_main.c"
+ },
+ {
+  "directory": "/home/irawizza/cs377/testing2/budget-ssh",
+  "arguments": [
+   "g++",
+   "-c",
+   "-o",
+   "obj/client_main.o",
+   "client_src/client_main.c",
+   "-Iinclude",
+   "-Wall",
+   "-DDEBUGMODE",
+   "-Wextra",
+   "-g",
+   "-pthread"
+  ],
+  "file": "client_src/client_main.c"
+ },
+ {
+  "directory": "/home/irawizza/cs377/testing2/budget-ssh",
+  "arguments": [
+   "g++",
+   "-c",
+   "-o",
+   "obj/test.o",
+   "test/test.cpp",
+   "-Iinclude",
+   "-Wall",
+   "-DDEBUGMODE",
+   "-Wextra",
+   "-g",
+   "-pthread"
+  ],
+  "file": "test/test.cpp"
  }
 ]

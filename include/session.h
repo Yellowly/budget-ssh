@@ -1,7 +1,7 @@
+#include "connection.h"
 #include "pseudo_terminal.h"
 #include "tsh.h"
 #include <bits/pthreadtypes.h>
-#include <pthread.h>
 #include <signal.h>
 #include <sys/wait.h>
 
@@ -22,7 +22,11 @@ typedef struct Session {
   int pid;
   // index of this session in the internal sessions array
   int sid;
+  pthread_t reader;
+  pthread_mutex_t conns_lock;
   int num_conns;
+  int max_conns;
+  Connection **conns;
 } Session;
 
 /*!
@@ -41,6 +45,12 @@ Session *make_session();
  * Gets an already running session by session id
  */
 Session *get_session(int sid);
+
+/*!
+ * Stores up to n active session ids into `sids`
+ * @returns The number of active sessions
+ */
+int list_sessions(int *sids, int n);
 
 /*!
  * Attempts to close a session.
@@ -64,3 +74,14 @@ void run_session(int socket_fd);
  * Closes the given session
  */
 int close_session(struct Session *session);
+
+/*!
+ * Entry point for handling client connections.
+ *
+ * Client connections are handled by reading from the socket, checking for
+ * certain keywords, writing to the client's associated shell session, and
+ * sending back the output.
+ *
+ * If an error occurs while handling the connection, returns -1
+ */
+int handle_connection(int socket_fd);
