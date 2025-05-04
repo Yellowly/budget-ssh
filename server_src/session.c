@@ -18,17 +18,21 @@ void *reap_task(void *arg) {
   while (1) {
     for (int i = 0; i < max_sessions; i++) {
       if (sessions[i].pid > 0) {
-        if (pthread_mutex_trylock(&sessions[i].conns_lock) == 0 &&
-            sessions[i].num_conns == 0) {
+        int locked = pthread_mutex_trylock(&sessions[i].conns_lock);
+
+        if (locked == 0 && sessions[i].num_conns == 0)
           kill(sessions[i].pid, 9);
-          pthread_mutex_unlock(&sessions[i].conns_lock);
-        }
+
+        pthread_mutex_unlock(&sessions[i].conns_lock);
+
         int status;
         if (waitpid(sessions[i].pid, &status, WNOHANG) > 0) {
           pthread_join(sessions[i].reader, NULL);
+
           sessions[i].pid = -1;
           close_pty(&sessions[i].terminal);
           pthread_mutex_destroy(&sessions[i].session_lock);
+
           free(sessions[i].conns);
         }
       }
@@ -45,9 +49,10 @@ void *session_reader(void *arg) {
       break;
 
     pthread_mutex_lock(&session->conns_lock);
-    if (session->num_conns == 0)
+    if (session->num_conns == 0) {
+      pthread_mutex_unlock(&session->conns_lock);
       break;
-
+    }
     for (int i = 0; i < session->num_conns; i++)
       write_to_conn(session->conns[i], msg_buffer, num_bytes);
 
@@ -117,7 +122,6 @@ Session *make_session(Connection *conn, int max_conns) {
   conn->id = 0;
   sessions[sid].conns[0] = conn;
   sessions[sid].pid = pid;
-  sessions[sid].sid = sid;
 
   pthread_create(&sessions[sid].reader, NULL, session_reader, &sessions[sid]);
 
@@ -244,8 +248,8 @@ int handle_connection(int socket_fd) {
       }
     }
   }
-  pthread_mutex_unlock(&session->session_lock);
 
+  pthread_mutex_unlock(&session->session_lock);
   close_session(&conn, session->sid);
 
   return res;
