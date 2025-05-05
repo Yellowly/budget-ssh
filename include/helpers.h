@@ -1,3 +1,5 @@
+#include <netinet/in.h>
+
 /*!
  * Finds the index of the first occurence of the char `find` in the provided
  * c string `str`
