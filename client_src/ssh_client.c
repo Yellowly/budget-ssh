@@ -3,6 +3,30 @@
 #include <stdio.h>
 #include <sys/socket.h>
 #include <unistd.h>
+#include <stdatomic.h>
+
+atomic_int flag = 0; // For thread coordination
+
+void *reader(void *arg) {
+  int socket_fd = *(int *) arg;
+  char buffer[1024];
+
+  while (!flag) {
+    ssize_t bytes_read = read(socket_fd, buffer, sizeof(buffer) - 1);
+
+    if (bytes_read <= 0) {
+      flag = 1;
+      break;
+    }
+
+    buffer[bytes_read] = '\0';
+
+    // This stores what's written in the socket fd  and prints to terminal, but idk what else it needs to do
+    write(STDOUT_FILENO, buffer, bytes_read);
+  }
+
+  return NULL;
+}
 
 /*!
  * Connect a client to the given address
@@ -12,11 +36,20 @@
  * the socket failed
  */
 int connect_client(struct sockaddr_in *addr) {
-  // look at "Statistic Bot" from cs230 to do this
+  // Create a socket
+  int socket_fd = socket(AF_INET, SOCK_STREAM, 0);
 
-  // TODO: create a socket
-  int socket_fd = -1;
-  // TODO: connect to server
+  if (socket_fd < 0) {
+    perror("Error opening socket\n");
+    return -1;
+  }
+
+  // Connect to server
+  if (connect(socket_fd, addr, sizeof(struct sockaddr_in)) < 0) {
+    perror("Error connecting to server\n");
+    close(socket_fd);
+    return -1;
+  }
 
   return socket_fd;
 }
@@ -34,10 +67,36 @@ int run_client(struct sockaddr_in addr) {
   dup2(socket_fd, STDIN_FILENO);
   dup2(socket_fd, STDOUT_FILENO);
 
-  while (1)
-    ;
+  printf("Connected to server! Type 'exit' to quit.\n");
 
-  return -1;
+  char buffer[1024];
+  // Loops until user exits the program
+  pthread_t tid;
+
+  pthread_create(&tid, NULL, reader, &socket_fd);
+
+  char buffer[1024];
+  while (flag) {
+    if (!fgets(buffer, sizeof(buffer), STDIN_FILENO)) {
+      flag = 1;
+      break;
+    }
+
+    // Checks for exit command, quit if so
+    if (!strncmp(buffer, "exit", 4)) {
+      flag = 1;
+      break;
+    }
+
+    write(socket_fd, buffer, strlen(buffer));
+  }
+
+  pthread_join(reader, NULL);  
+  close(socket_fd);
+
+
+  printf("Client was closed\n");
+  return 0;
   // you will need to create a separate thread to either read or write to the
   // socket exit once the user types 'exit' or 'EOF' is read from the socket
   // (this will happen if server closes our connection)
