@@ -96,6 +96,7 @@ int handle_connection(int socket_fd) {
 int write_to_conn(Connection *c, char *buf, ssize_t len) {
   pthread_mutex_lock(&c->socket_lock);
   int res = send(c->socket_fd, buf, len, 0);
+  int res2 = send(c->socket_fd, "\n", 1, 0);
   pthread_mutex_unlock(&c->socket_lock);
-  return res;
+  return res | res2;
 }

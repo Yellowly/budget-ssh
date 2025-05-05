@@ -58,6 +58,7 @@ void *session_reader(void *arg) {
 
     pthread_mutex_unlock(&session->conns_lock);
   }
+
   return NULL;
 }
 
@@ -150,10 +151,13 @@ Session *join_session(Connection *conn, int sid) {
   return &sessions[sid];
 }
 
+/*!
+ * Lists all currently active sessions
+ */
 int list_sessions(int *sids, int n) {
   int count = 0;
   for (int i = 0; i < max_sessions && count < n; i++)
-    if (sessions[i].sid > 0)
+    if (sessions[i].pid > 0)
       sids[count++] = sessions[i].sid;
 
   return count;
@@ -204,23 +208,30 @@ int handle_connection(int socket_fd) {
       break;
     } else {
       // check for keywords (such as joining sessions or signals)
-      if (memcmp(msg_buffer, "bssh conns", num_bytes) == 0) {
+      if (num_bytes >= 11 && memcmp(msg_buffer, "bssh conns", 10) == 0) {
         int active_sids[256];
         int num_sessions = list_sessions(active_sids, 256);
 
         pthread_mutex_lock(&conn.socket_lock);
         for (int i = 0; i < num_sessions; i++) {
-          int len = sprintf(msg_buffer, "%d, ", active_sids[i]);
+          int len = active_sids[i] == session->sid
+                        ? sprintf(msg_buffer, "%d (you), ", active_sids[i])
+                        : sprintf(msg_buffer, "%d, ", active_sids[i]);
           write(conn.socket_fd, msg_buffer, len);
         }
-        write(conn.socket_fd, "\n\n", 2);
+        write(conn.socket_fd, "\ntsh> \n", 7);
         pthread_mutex_unlock(&conn.socket_lock);
 
         continue;
 
-      } else if (memcmp(msg_buffer, "bssh join ", 10)) {
+      } else if (num_bytes >= 10 && memcmp(msg_buffer, "bssh join ", 10) == 0) {
         int sid;
         if (sscanf(msg_buffer, "bssh join %d", &sid) > 0) {
+          if (sid == session->sid) {
+            write_to_conn(&conn, (char *)"Cannot join your own session!\ntsh> ",
+                          35);
+            continue;
+          }
           Session *new_ses = join_session(&conn, sid);
 
           if (new_ses == NULL)
@@ -228,6 +239,7 @@ int handle_connection(int socket_fd) {
           else {
             close_session(&conn, session->sid);
             session = new_ses;
+            write_to_conn(&conn, (char *)"Joined session\ntsh> ", 20);
           }
         }
         continue;
@@ -238,8 +250,8 @@ int handle_connection(int socket_fd) {
         char ends_with_newline = msg_buffer[num_bytes - 1] == '\n';
         write(session->terminal.master_fd, msg_buffer, num_bytes);
 
-        if (ends_with_newline)
-          pthread_mutex_unlock(&session->session_lock);
+        // if (ends_with_newline)
+        pthread_mutex_unlock(&session->session_lock);
       } else {
         write_to_conn(&conn,
                       (char *)"Could not run command: Someone else just sent a "
