@@ -53,13 +53,6 @@ Session *get_session(int sid);
 int list_sessions(int *sids, int n);
 
 /*!
- * Attempts to close a session.
- * Note that the session will only actually close if it has no more connections
- * referencing it.
- */
-int close_session(Session *session);
-
-/*!
  * Entry point for running a client session.
  *
  * Should get called in a new process created for the client.
@@ -71,9 +64,11 @@ int close_session(Session *session);
 void run_session(int socket_fd);
 
 /*!
- * Closes the given session
+ * Attempts to close a session.
+ * Note that the session will only actually close if it has no more connections
+ * referencing it.
  */
-int close_session(Session *session);
+int close_session(Connection *conn, int sid);
 
 /*!
  * Entry point for handling client connections.
