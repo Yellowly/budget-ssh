@@ -198,17 +198,19 @@ int handle_connection(int socket_fd) {
 
   char msg_buffer[1024];
   int res = 0;
+  char has_session_lock = 0;
   while (1) {
     int num_bytes = recv(socket_fd, msg_buffer, 1024, 0);
     if (num_bytes < 0) {
-      printf("Could not receive message\n");
       res = -1;
       break;
     } else if (num_bytes == 0) {
       break;
     } else {
       // check for keywords (such as joining sessions or signals)
-      if (num_bytes >= 11 && memcmp(msg_buffer, "bssh conns", 10) == 0) {
+      if (memcmp(msg_buffer, "exit", 4) == 0) {
+        break;
+      } else if (num_bytes >= 11 && memcmp(msg_buffer, "bssh conns", 10) == 0) {
         int active_sids[256];
         int num_sessions = list_sessions(active_sids, 256);
 
@@ -246,12 +248,16 @@ int handle_connection(int socket_fd) {
       }
 
       // write to the session
-      if (pthread_mutex_trylock(&session->session_lock) == 0) {
+      if (has_session_lock ||
+          pthread_mutex_trylock(&session->session_lock) == 0) {
+        has_session_lock = 1;
         char ends_with_newline = msg_buffer[num_bytes - 1] == '\n';
         write(session->terminal.master_fd, msg_buffer, num_bytes);
 
-        // if (ends_with_newline)
-        pthread_mutex_unlock(&session->session_lock);
+        if (ends_with_newline) {
+          has_session_lock = 0;
+          pthread_mutex_unlock(&session->session_lock);
+        }
       } else {
         write_to_conn(&conn,
                       (char *)"Could not run command: Someone else just sent a "
@@ -260,9 +266,10 @@ int handle_connection(int socket_fd) {
       }
     }
   }
-
-  pthread_mutex_unlock(&session->session_lock);
+  if (has_session_lock)
+    pthread_mutex_unlock(&session->session_lock);
   close_session(&conn, session->sid);
+  close(conn.socket_fd);
 
   return res;
 }

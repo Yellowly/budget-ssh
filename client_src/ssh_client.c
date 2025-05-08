@@ -85,16 +85,16 @@ int run_client(struct sockaddr_in addr) {
       break;
     }
 
-    // Checks for exit command, quit if so
-    // if (!strncmp(buffer, "exit", 4)) {
-    //  flag = 1;
-    //  break;
-    //}
-
     write(socket_fd, buffer, strlen(buffer));
+
+    // Checks for exit command, quit if so
+    if (!strncmp(buffer, "exit", 4)) {
+      flag = 1;
+      break;
+    }
   }
-  pthread_join(tid, NULL);
   close(socket_fd);
+  pthread_join(tid, NULL);
 
   printf("Client was closed\n");
   return 0;
